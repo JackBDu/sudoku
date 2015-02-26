@@ -9,6 +9,8 @@
 
 import java.util.Arrays;
 import java.util.Scanner;
+import java.io.FileReader;
+import java.io.BufferedReader;
 
 /*
  * @ version 0.0.1
@@ -17,9 +19,17 @@ import java.util.Scanner;
 
 
 public class Sudoku {
-	public static final String ANSI_RED = "\u001B[31m";
 	public static final String ANSI_RESET = "\u001B[0m";
-	public static void main(String[] args) {
+	public static final String ANSI_BLACK = "\u001B[30m";
+	public static final String ANSI_RED = "\u001B[31m";
+	public static final String ANSI_GREEN = "\u001B[32m";
+	public static final String ANSI_YELLOW = "\u001B[33m";
+	public static final String ANSI_BLUE = "\u001B[34m";
+	public static final String ANSI_PURPLE = "\u001B[35m";
+	public static final String ANSI_CYAN = "\u001B[36m";
+	public static final String ANSI_GRAY = "\u001B[37m";
+	public static final String ANSI_WHITE = "\u001B[37;1m"; 
+	public static void main(String[] args) throws Exception {
 		int[][] matrix = reader();
 		boolean solved = false;
 		String[][] matrixToPrint = new String[matrix.length][matrix[0].length];
@@ -50,27 +60,43 @@ public class Sudoku {
 		}
 	}
 
-	// read and return the matrix
-	private static int[][] reader() {
+	public static int[][] reader() throws Exception {
+		FileReader fr = new FileReader("sudoku001.txt");
+		BufferedReader br = new BufferedReader(fr);
+		System.out.println();
 		int[][] matrix = new int[9][9];
-		Scanner sc = new Scanner(System.in); 
-		System.out.println("Enter the values row by row, seperate values with a space and enter 0 for missing values.");
-		for (int r=0; r<matrix.length; r++) {
-			for (int c=0; c<matrix[r].length; c++) {
-				matrix[r][c] = sc.nextInt();
+		for (int i = 0; i < 9; i++) {
+			String[] row = br.readLine().split("\\s");
+			for (int j = 0; j < 9; j++) {
+				matrix[i][j] = Integer.parseInt(row[j]);	
 			}
 		}
 		return matrix;
 	}
+	// read and return the matrix
+	// private static int[][] reader() {
+	// 	int[][] matrix = new int[9][9];
+	// 	Scanner sc = new Scanner(System.in); 
+	// 	System.out.println("Enter the values row by row, seperate values with a space and enter 0 for missing values.");
+	// 	for (int r=0; r<matrix.length; r++) {
+	// 		for (int c=0; c<matrix[r].length; c++) {
+	// 			matrix[r][c] = sc.nextInt();
+	// 		}
+	// 	}
+	// 	return matrix;
+	// }
 
 	// print the current matrix status
 	private static void printer(String[][] matrixToPrint) {
+		System.out.println(ANSI_BLUE+"   A B C  D E F  G H I"+ANSI_RESET);
 		System.out.println();
 		for (int r=0; r<matrixToPrint.length; r++) {
+			System.out.print(ANSI_BLUE+(r+1)+"  "+ANSI_RESET);
 			for (int c=0; c<matrixToPrint[r].length; c++) {
 				String decoration = "";
 				if (c%3==2 && c!=8) {
-					decoration = "| ";
+					// decoration = "| ";
+					decoration = " ";
 				}
 				if (matrixToPrint[r][c].contains("X")) {
 					System.out.print(ANSI_RED + matrixToPrint[r][c].charAt(0) + ANSI_RESET);
@@ -81,7 +107,8 @@ public class Sudoku {
 			}
 			System.out.println();
 			if (r%3==2 && r!=8) {
-				System.out.println("––––––+–-–––––+––––––");
+				// System.out.println("––––––+–––––––+––––––"); 
+				System.out.println();
 			}
 		}
 		System.out.println();
