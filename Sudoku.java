@@ -1,5 +1,20 @@
+/*
+ * Sudoku.java
+ *
+ * Created on Febuary 12, 2015
+ *
+ * Copyright(c) {2015} Jack B. Du (Jiadong Du) All Rights Reserved.
+ *
+ */
+
 import java.util.Arrays;
 import java.util.Scanner;
+
+/*
+ * @ version 0.0.1
+ * @ author Jack B. Du (Jiadong Du)
+ */
+
 
 public class Sudoku {
 	public static final String ANSI_RED = "\u001B[31m";
@@ -18,6 +33,7 @@ public class Sudoku {
 		System.out.println("Congratulations, you solved it!");
 	}
 	
+	// repace values at speficified row and column
 	private static void replacer(int[][] matrix) {
 		Scanner sc = new Scanner(System.in);
 		System.out.print("\nEnter the number of values you want to change: ");
@@ -34,6 +50,7 @@ public class Sudoku {
 		}
 	}
 
+	// read and return the matrix
 	private static int[][] reader() {
 		int[][] matrix = new int[9][9];
 		Scanner sc = new Scanner(System.in); 
@@ -46,6 +63,7 @@ public class Sudoku {
 		return matrix;
 	}
 
+	// print the current matrix status
 	private static void printer(String[][] matrixToPrint) {
 		System.out.println();
 		for (int r=0; r<matrixToPrint.length; r++) {
@@ -89,6 +107,7 @@ public class Sudoku {
 		}
 	}
 
+	// verify if it is solved
 	private static boolean verifier(int[][] matrix, String[][] matrixToPrint) {
 		boolean solved = true;
 		int[][] rotatedMatrix = new int[matrix[0].length][matrix.length];
