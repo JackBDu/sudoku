@@ -3,6 +3,10 @@
 # Vim backup files 
 *~
 
+# Vim swap Files
+*.swp
+*.swo
+
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
