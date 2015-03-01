@@ -35,18 +35,11 @@ public class Sudoku {
 	public static final String ANSI_NORMAL = "\033[0m";
 	public static void main(String[] args) throws Exception {
 		welcome();
-		try {
-			int[][] initMatrix = reader(1); // read initial matrix
-			int[][] matrix = reader(11); // read current status
-		} catcj (Exception e) {
-			System.out.println(e+"\n");
-		}
-		try {
-			int[][] ansMatrix = reader(21); // read the answer matrix
-			boolean hasAnswer = true;
-		} catch (NullPointerException e) {
-			boolean hasAnswer = false;
-		}
+		String playerName = getPlayerName();
+		introduceGame(playerName);
+		int[][] initMatrix = reader(1); // read initial matrix
+		int[][] matrix = reader(11); // read current status
+		int[][] ansMatrix = reader(21); // read the answer matrix
 		boolean solved = false;
 		String[][] matrixToPrint = new String[9][9];
 		solved = verifier(matrix, matrixToPrint);
@@ -60,14 +53,22 @@ public class Sudoku {
 	}
 
 	/* 
-	 * print welcome screen
-	 * ascii art generted using
+	 * print welcome screen, containing game name, version and author name
+	 * and resizing instructions
+	 * ascii arts are generted using
 	 * http://patorjk.com/software/taag/
 	 * http://www.network-science.de/ascii/
 	 */
 	
 	public static void welcome() {
-		System.out.println();
+		for (int i = 0; i<100; i++) {
+			System.out.println();
+		}
+		clearScreen();
+		System.out.println("Resize the window width so that this line is in one line");
+		System.out.println("                                     but this line in two");
+		System.out.println("Resize the window height so that you CAN'T see this line");
+		System.out.println("                               but you CAN see this line");
 		System.out.println("  _______  __   __  ______   _______  ___   _  __   __ ");
 		System.out.println(" |       ||  | |  ||      | |       ||   | | ||  | |  |");
 		System.out.println(" |  _____||  | |  ||  _    ||   _   ||   |_| ||  | |  |");
@@ -75,7 +76,6 @@ public class Sudoku {
 		System.out.println(" |_____  ||       || |_|   ||  |_|  ||     |_ |       |");
 		System.out.println("  _____| ||       ||       ||       ||    _  ||       |");
 		System.out.println(" |_______||_______||______| |_______||___| |_||_______|");
-		System.out.println();
 		System.out.println("       _   __            _             ___   ___   ___");
 		System.out.println("      | | / /__ _______ (_)__  ___    / _ \\ / _ \\ <  /");
 		System.out.println("      | |/ / -_) __(_-</ / _ \\/ _ \\  / // // // / / / ");
@@ -86,7 +86,40 @@ public class Sudoku {
 		System.out.println("     | '_ \\ || | | || / _` / _| / / | _ \\_  | |) | || |");
 		System.out.println("     |_.__/\\_, |  \\__/\\__,_\\__|_\\_\\ |___(_) |___/ \\_,_|");
 		System.out.println("           |__/                                        ");
+		System.out.println(ANSI_RED+"Please resize the console window according to the instructions at the top to get the best gaming experience!"+ANSI_RESET);
+	}
+
+	// get player name and return it
+	public static String getPlayerName() {
+		Scanner sc = new Scanner(System.in);
+		System.out.print("Enter your name: ");
+		String playerName = sc.next();
+		return playerName;
+	}
+
+	public static void introduceGame(String playerName) {
+		Scanner sc = new Scanner(System.in);
+		clearScreen();
+		System.out.println("Hello, "+playerName+"!");
 		System.out.println("");
+		System.out.println("Welcome to Sudoku!");
+		System.out.println("");
+		System.out.println("");
+		System.out.println("   /###############################################\\");
+		System.out.println("  (                                                 )");
+		System.out.println("  ( "+ANSI_BOLD+"Sudoku"+ANSI_NORMAL+" is a puzzle where you need to fill a 9×9"+" )");
+		System.out.println("  ( "+"grid with digits so that each column, each row,"+" )");
+		System.out.println("  ( "+"and each of the nine 3×3 sub-grids that compose"+" )");
+		System.out.println("  ( "+"the grid contains ALL of the digits from 1 to 9"+" )");
+		System.out.println("  (                                                 )");
+		System.out.println("   \\###############################################/");
+		System.out.println("");
+		System.out.println("");
+		System.out.println("");
+		System.out.println("");
+		System.out.println("");
+		System.out.println("");
+		sc.next();
 	}
 
 	// repace values at speficified row and column
@@ -113,24 +146,29 @@ public class Sudoku {
 
 	// read from file begin with n-th line and return the matrix
 	public static int[][] reader(int n) throws Exception {
-		FileReader fr = new FileReader("sudoku001.dat");
-		BufferedReader br = new BufferedReader(fr);
-		System.out.println();
 		int[][] matrix = new int[9][9];
-		// skip the lines before n-th line
-		for (int i = 0; i < n-1; i++) {
-			br.readLine();
-		}
-		// read the 9 lines starting with n-th line
-		for (int i = 0; i < 9; i++) {
-			String[] row = br.readLine().split("\\s");
-			for (int j = 0; j < 9; j++) {
-				matrix[i][j] = Integer.parseInt(row[j]);	
+		try {
+			FileReader fr = new FileReader("sudoku001.dat");
+			BufferedReader br = new BufferedReader(fr);
+			System.out.println();
+			// skip the lines before n-th line
+			for (int i = 0; i < n-1; i++) {
+				br.readLine();
 			}
+			// read the 9 lines starting with n-th line
+			for (int i = 0; i < 9; i++) {
+				String[] row = br.readLine().split("\\s");
+				for (int j = 0; j < 9; j++) {
+					matrix[i][j] = Integer.parseInt(row[j]);	
+				}
+			}
+		} catch (Exception e) {
+			matrix = null;
 		}
 
 		return matrix;
 	}
+
 	// read from system input and return the matrix
 	// private static int[][] reader() {
 	// 	int[][] matrix = new int[9][9];
@@ -146,10 +184,10 @@ public class Sudoku {
 
 	// print the current matrix status
 	private static void printer(String[][] matrixToPrint, int[][] initMatrix) {
-		System.out.println("                   "+"  "+ANSI_BOLD+ANSI_BLUE+"1 2 3  4 5 6  7 8 9"+ANSI_RESET+ANSI_NORMAL);
+		System.out.println("                  "+"  "+ANSI_BOLD+ANSI_BLUE+"1 2 3  4 5 6  7 8 9"+ANSI_RESET+ANSI_NORMAL);
 		// System.out.println();
 		for (int r=0; r<9; r++) {
-			System.out.print("                   "+ANSI_BLUE+ANSI_BOLD+(r+1)+" "+ANSI_RESET);
+			System.out.print("                  "+ANSI_BLUE+ANSI_BOLD+(r+1)+" "+ANSI_RESET);
 			for (int c=0; c<9; c++) {
 				String decoration = "";
 				if (c%3==2 && c!=8) {
@@ -274,6 +312,12 @@ public class Sudoku {
 			}
 		}
 		return solved;
+	}
+
+	// clear the screen
+	public static void clearScreen() {
+		System.out.print("\u001b[2J");
+		System.out.flush();
 	}
 
 }
