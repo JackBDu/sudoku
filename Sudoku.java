@@ -9,8 +9,12 @@
 
 import java.util.Arrays;
 import java.util.Scanner;
+import java.io.PrintWriter;
+import java.io.OutputStreamWriter;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.BufferedReader;
+import java.io.File;
 
 /*
  * @ version 0.0.1
@@ -46,9 +50,9 @@ public class Sudoku {
 		int[][] ansMatrix = null; // the 2d array that the answer of the sudoku, if any, is stored in
 
 		if (newGameType == 'o') {
-			initMatrix = reader(1); // read initial matrix
-			matrix = reader(11); // read current status
-			ansMatrix = reader(21); // read the answer matrix
+			initMatrix = reader(1, playerName); // read initial matrix
+			matrix = reader(11, playerName); // read current status
+			ansMatrix = reader(21, playerName); // read the answer matrix
 		} else {
 			initMatrix = readInConsole(); // read from user input
 			matrix = new int[9][9];
@@ -61,7 +65,7 @@ public class Sudoku {
 		int[] currentPos = {0, 0};
 		verifier(matrix, matrixToPrint); // verify whether the sudoku is solved or not
 		printer(matrixToPrint, initMatrix, currentPos); // print the current sudoku
-		handler(matrix, initMatrix, ansMatrix, matrixToPrint, currentPos);
+		handler(matrix, initMatrix, ansMatrix, matrixToPrint, currentPos, playerName);
 		clearScreen();
 		printer(matrixToPrint, initMatrix, currentPos);
 		System.out.println();
@@ -116,6 +120,7 @@ public class Sudoku {
 
 	// print the introduction of the game and return the type of new game the user chooses
 	public static char introduceGame(String playerName) {
+		(new File("data/"+playerName.toLowerCase())).mkdirs();
 		Scanner sc = new Scanner(System.in);
 		clearScreen();
 		System.out.println("Hello, "+playerName+"!");
@@ -149,7 +154,7 @@ public class Sudoku {
 	}
 
 	// handle navigation and replacement
-	private static void handler(int[][] matrix, int[][] initMatrix, int[][] ansMatrix, String[][] matrixToPrint, int[] currentPos) {
+	private static void handler(int[][] matrix, int[][] initMatrix, int[][] ansMatrix, String[][] matrixToPrint, int[] currentPos, String playerName) throws Exception {
 		Scanner sc = new Scanner(System.in);
 		int row;
 		int column;
@@ -177,17 +182,21 @@ public class Sudoku {
 				row++;
 				statusBar = "Moved left";
 			} else if (input.toLowerCase().charAt(0) == 'a') {
+				if (ansMatrix!=null) {
 				int value = ansMatrix[row][column];
-				if (initMatrix[row][column] == 0){ // if the initial value is 0, this value CAN be changed
-					matrix[row][column] = value; // replace the old value with new value
-					solved = verifier(matrix, matrixToPrint);
-					if (solved) { // return if it's solved
-						currentPos[0] = 9;
-						return;
+					if (initMatrix[row][column] == 0){ // if the initial value is 0, this value CAN be changed
+						matrix[row][column] = value; // replace the old value with new value
+						solved = verifier(matrix, matrixToPrint);
+						if (solved) { // return if it's solved
+							currentPos[0] = 9;
+							return;
+						}
 					}
+					column++;
+					statusBar = ANSI_GREEN+"Answer displayed"+ANSI_RESET;
+				} else {
+					statusBar = ANSI_BOLD+ANSI_RED+"Answer not available"+ANSI_RESET;
 				}
-				column++;
-				statusBar = ANSI_GREEN+"Answer displayed"+ANSI_RESET;
 			} else if (input.toLowerCase().charAt(0) == 'q') {
 				statusBar = ANSI_RED+"Game quit"+ANSI_RESET;
 				System.exit(0);
@@ -209,6 +218,7 @@ public class Sudoku {
 			positionVerifier(row, column, currentPos); // avoid currentPos going out of boundary
 			clearScreen();
 			printer(matrixToPrint, initMatrix, currentPos);
+			writeOut(initMatrix, matrix, ansMatrix, playerName);
 		}
 	}
 
@@ -233,10 +243,15 @@ public class Sudoku {
 	}
 
 	// read from file begin with n-th line and return the matrix
-	public static int[][] reader(int n) throws Exception {
+	public static int[][] reader(int n, String playerName) throws Exception {
 		int[][] matrix = new int[9][9];
 		try {
-			FileReader fr = new FileReader("sudoku001.dat");
+			FileReader fr = null;
+			try {
+				fr = new FileReader("data/"+playerName+"/file.dat");
+			} catch (Exception e) {
+				fr = new FileReader("sudoku001.dat");
+			}
 			BufferedReader br = new BufferedReader(fr);
 			System.out.println();
 			// skip the lines before n-th line
@@ -398,6 +413,40 @@ public class Sudoku {
 	public static void clearScreen() {
 		System.out.print("\u001b[2J");
 		System.out.flush();
+	}
+
+	// write out a .dat file
+	public static void writeOut (int[][] initMatrix, int[][] matrix, int[][] ansMatrix, String playerName) throws Exception{
+		PrintWriter pw = new PrintWriter(
+			new OutputStreamWriter(
+       			new FileOutputStream("data/"+playerName+"/file.dat"), "UTF-8"));
+		for (int r=0; r<9; r++) {
+			String line = "";
+			for (int c=0; c<9; c++) {
+				line += initMatrix[r][c] + " ";
+			}
+			pw.println(line);
+		}
+		pw.println();
+		for (int r=0; r<9; r++) {
+			String line = "";
+			for (int c=0; c<9; c++) {
+				line += matrix[r][c] + " ";
+			}
+			pw.println(line);
+		}
+		pw.println();
+		if (ansMatrix!=null) {
+			for (int r=0; r<9; r++) {
+				String line = "";
+				for (int c=0; c<9; c++) {
+					line += ansMatrix[r][c] + " ";
+				}
+				pw.println(line);
+			}
+			pw.println();
+		}
+		pw.close();
 	}
 
 }
