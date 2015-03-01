@@ -35,44 +35,62 @@ public class Sudoku {
 	public static final String ANSI_NORMAL = "\033[0m";
 	public static void main(String[] args) throws Exception {
 		welcome();
-		int[][] matrix = reader();
+		try {
+			int[][] initMatrix = reader(1); // read initial matrix
+			int[][] matrix = reader(11); // read current status
+		} catcj (Exception e) {
+			System.out.println(e+"\n");
+		}
+		try {
+			int[][] ansMatrix = reader(21); // read the answer matrix
+			boolean hasAnswer = true;
+		} catch (NullPointerException e) {
+			boolean hasAnswer = false;
+		}
 		boolean solved = false;
-		String[][] matrixToPrint = new String[matrix.length][matrix[0].length];
+		String[][] matrixToPrint = new String[9][9];
 		solved = verifier(matrix, matrixToPrint);
-		printer(matrixToPrint);
+		printer(matrixToPrint, initMatrix);
 		while (!solved) {
-			replacer(matrix);
+			replacer(matrix, initMatrix);
 			solved = verifier(matrix, matrixToPrint);
-			printer(matrixToPrint);
+			printer(matrixToPrint, initMatrix);
 		}
 		System.out.println("Congratulations, you solved it!");
 	}
+
+	/* 
+	 * print welcome screen
+	 * ascii art generted using
+	 * http://patorjk.com/software/taag/
+	 * http://www.network-science.de/ascii/
+	 */
 	
 	public static void welcome() {
 		System.out.println();
-		System.out.println(" _______  __   __  ______   _______  ___   _  __   __ ");
-		System.out.println("|       ||  | |  ||      | |       ||   | | ||  | |  |");
-		System.out.println("|  _____||  | |  ||  _    ||   _   ||   |_| ||  | |  |");
-		System.out.println("| |_____ |  |_|  || | |   ||  | |  ||      _||  |_|  |");
-		System.out.println("|_____  ||       || |_|   ||  |_|  ||     |_ |       |");
-		System.out.println(" _____| ||       ||       ||       ||    _  ||       |");
-		System.out.println("|_______||_______||______| |_______||___| |_||_______|");
+		System.out.println("  _______  __   __  ______   _______  ___   _  __   __ ");
+		System.out.println(" |       ||  | |  ||      | |       ||   | | ||  | |  |");
+		System.out.println(" |  _____||  | |  ||  _    ||   _   ||   |_| ||  | |  |");
+		System.out.println(" | |_____ |  |_|  || | |   ||  | |  ||      _||  |_|  |");
+		System.out.println(" |_____  ||       || |_|   ||  |_|  ||     |_ |       |");
+		System.out.println("  _____| ||       ||       ||       ||    _  ||       |");
+		System.out.println(" |_______||_______||______| |_______||___| |_||_______|");
 		System.out.println();
- 		System.out.println("       _   __            _             ___   ___   ___");
- 		System.out.println("      | | / /__ _______ (_)__  ___    / _ \\ / _ \\ <  /");
- 		System.out.println("      | |/ / -_) __(_-</ / _ \\/ _ \\  / // // // / / / ");
- 		System.out.println("      |___/\\__/_/ /___/_/\\___/_//_/  \\___(_)___(_)_/  ");
- 		System.out.println();
- 		System.out.println("      _              _         _     ___     ___       ");
- 		System.out.println("     | |__ _  _   _ | |__ _ __| |__ | _ )   |   \\ _  _ ");
- 		System.out.println("     | '_ \\ || | | || / _` / _| / / | _ \\_  | |) | || |");
- 		System.out.println("     |_.__/\\_, |  \\__/\\__,_\\__|_\\_\\ |___(_) |___/ \\_,_|");
- 		System.out.println("           |__/                                        ");
- 		System.out.println("");
+		System.out.println("       _   __            _             ___   ___   ___");
+		System.out.println("      | | / /__ _______ (_)__  ___    / _ \\ / _ \\ <  /");
+		System.out.println("      | |/ / -_) __(_-</ / _ \\/ _ \\  / // // // / / / ");
+		System.out.println("      |___/\\__/_/ /___/_/\\___/_//_/  \\___(_)___(_)_/  ");
+		System.out.println();
+		System.out.println("      _              _         _     ___     ___       ");
+		System.out.println("     | |__ _  _   _ | |__ _ __| |__ | _ )   |   \\ _  _ ");
+		System.out.println("     | '_ \\ || | | || / _` / _| / / | _ \\_  | |) | || |");
+		System.out.println("     |_.__/\\_, |  \\__/\\__,_\\__|_\\_\\ |___(_) |___/ \\_,_|");
+		System.out.println("           |__/                                        ");
+		System.out.println("");
 	}
 
 	// repace values at speficified row and column
-	private static void replacer(int[][] matrix) {
+	private static void replacer(int[][] matrix, int[][] initMatrix) {
 		Scanner sc = new Scanner(System.in);
 		System.out.print("\nEnter the number of values you want to change: ");
 		int n = sc.nextInt();
@@ -83,23 +101,34 @@ public class Sudoku {
 			int c = sc.nextInt() - 1;
 			System.out.print("Enter the value you want to replace \"" + matrix[r][c] + "\" with: ");
 			int value = sc.nextInt();
-			matrix[r][c] = value;
-			System.out.println("Success!");
+			if (initMatrix[r][c] == 0){ // if the initial value is 0, this value CAN be changed
+				matrix[r][c] = value;
+				System.out.println(ANSI_GREEN + "Success! You have changed the value." + ANSI_RESET);
+			} else { // if the initial value isn't 0, this value CANNOT be changed
+				System.out.println(ANSI_BOLD+ANSI_RED + "Error! You cannot change this value." + ANSI_RESET);
+			}
+			System.out.println();
 		}
 	}
 
-	// read from file and return the matrix
-	public static int[][] reader() throws Exception {
-		FileReader fr = new FileReader("sudoku001.txt");
+	// read from file begin with n-th line and return the matrix
+	public static int[][] reader(int n) throws Exception {
+		FileReader fr = new FileReader("sudoku001.dat");
 		BufferedReader br = new BufferedReader(fr);
 		System.out.println();
 		int[][] matrix = new int[9][9];
+		// skip the lines before n-th line
+		for (int i = 0; i < n-1; i++) {
+			br.readLine();
+		}
+		// read the 9 lines starting with n-th line
 		for (int i = 0; i < 9; i++) {
 			String[] row = br.readLine().split("\\s");
 			for (int j = 0; j < 9; j++) {
 				matrix[i][j] = Integer.parseInt(row[j]);	
 			}
 		}
+
 		return matrix;
 	}
 	// read from system input and return the matrix
@@ -107,8 +136,8 @@ public class Sudoku {
 	// 	int[][] matrix = new int[9][9];
 	// 	Scanner sc = new Scanner(System.in); 
 	// 	System.out.println("Enter the values row by row, seperate values with a space and enter 0 for missing values.");
-	// 	for (int r=0; r<matrix.length; r++) {
-	// 		for (int c=0; c<matrix[r].length; c++) {
+	// 	for (int r=0; r<9; r++) {
+	// 		for (int c=0; c<9; c++) {
 	// 			matrix[r][c] = sc.nextInt();
 	// 		}
 	// 	}
@@ -116,12 +145,12 @@ public class Sudoku {
 	// }
 
 	// print the current matrix status
-	private static void printer(String[][] matrixToPrint) {
-		System.out.println("                   "+"  "+ANSI_BOLD+ANSI_BLUE+"A B C  D E F  G H I"+ANSI_RESET+ANSI_NORMAL);
+	private static void printer(String[][] matrixToPrint, int[][] initMatrix) {
+		System.out.println("                   "+"  "+ANSI_BOLD+ANSI_BLUE+"1 2 3  4 5 6  7 8 9"+ANSI_RESET+ANSI_NORMAL);
 		// System.out.println();
-		for (int r=0; r<matrixToPrint.length; r++) {
+		for (int r=0; r<9; r++) {
 			System.out.print("                   "+ANSI_BLUE+ANSI_BOLD+(r+1)+" "+ANSI_RESET);
-			for (int c=0; c<matrixToPrint[r].length; c++) {
+			for (int c=0; c<9; c++) {
 				String decoration = "";
 				if (c%3==2 && c!=8) {
 					// decoration = "| ";
@@ -129,6 +158,8 @@ public class Sudoku {
 				}
 				if (matrixToPrint[r][c].contains("X")) {
 					System.out.print(ANSI_RED + matrixToPrint[r][c].charAt(0) + ANSI_RESET);
+				} else if (initMatrix[r][c]==0) {
+					System.out.print(ANSI_GREEN + matrixToPrint[r][c].charAt(0) + ANSI_RESET);
 				} else {
 					System.out.print(matrixToPrint[r][c].charAt(0));
 				}
@@ -141,8 +172,8 @@ public class Sudoku {
 			}
 		}
 		System.out.println();
-		// for (int r=0; r<matrixToPrint.length; r++) {
-		// 	for (int c=0; c<matrixToPrint[r].length; c++) {
+		// for (int r=0; r<9; r++) {
+		// 	for (int c=0; c<9; c++) {
 		// 		int row = r + 1;
 		// 		int column = c + 1;
 		// 		if (matrixToPrint[r][c].charAt(0)=='0') {
@@ -166,13 +197,13 @@ public class Sudoku {
 	// verify if it is solved
 	private static boolean verifier(int[][] matrix, String[][] matrixToPrint) {
 		boolean solved = true;
-		int[][] rotatedMatrix = new int[matrix[0].length][matrix.length];
+		int[][] rotatedMatrix = new int[9][9];
 		int[][] extractedMatrix = new int[9][9];
-		for (int r=0; r<matrix.length; r++) {
-			int[] row = new int[matrix[r].length];
-			for (int c=0; c<matrix[r].length; c++) {
+		for (int r=0; r<9; r++) {
+			int[] row = new int[9];
+			for (int c=0; c<9; c++) {
 				boolean check = false;
-				for (int i=0; i<matrix[r].length; i++) {
+				for (int i=0; i<9; i++) {
 					if (row[i]==matrix[r][c]){
 						check = true;
 					}
@@ -198,11 +229,11 @@ public class Sudoku {
 		}
 
 		// check rotated matrix
-		for (int c=0; c<rotatedMatrix.length; c++) {
-			int[] column = new int[rotatedMatrix[c].length];
-			for (int r=0; r<rotatedMatrix[c].length; r++) {
+		for (int c=0; c<9; c++) {
+			int[] column = new int[9];
+			for (int r=0; r<9; r++) {
 				boolean check = false;
-				for (int i=0; i<rotatedMatrix[c].length; i++) {
+				for (int i=0; i<9; i++) {
 					if (column[i]==rotatedMatrix[c][r]){
 						check = true;
 					}
@@ -220,11 +251,11 @@ public class Sudoku {
 		}		
 
 		//check extracted matrix
-		for (int i=0; i<extractedMatrix.length; i++) {
-			int[] block = new int[extractedMatrix[i].length];
-			for (int j=0; j<extractedMatrix[i].length; j++) {
+		for (int i=0; i<9; i++) {
+			int[] block = new int[9];
+			for (int j=0; j<9; j++) {
 				boolean check = false;
-				for (int k=0; k<extractedMatrix[i].length; k++) {
+				for (int k=0; k<9; k++) {
 					if (block[k]==extractedMatrix[i][j]){
 						check = true;
 					}
