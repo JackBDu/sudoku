@@ -29,7 +29,12 @@ public class Sudoku {
 	public static final String ANSI_CYAN = "\u001B[36m";
 	public static final String ANSI_GRAY = "\u001B[37m";
 	public static final String ANSI_WHITE = "\u001B[37;1m"; 
+	public static final String ANSI_BOLD = "\033[1m";
+	public static final String ANSI_LIGHT = "\033[2m";
+	public static final String ANSI_UNDERLINE = "\033[4m";
+	public static final String ANSI_NORMAL = "\033[0m";
 	public static void main(String[] args) throws Exception {
+		welcome();
 		int[][] matrix = reader();
 		boolean solved = false;
 		String[][] matrixToPrint = new String[matrix.length][matrix[0].length];
@@ -43,6 +48,29 @@ public class Sudoku {
 		System.out.println("Congratulations, you solved it!");
 	}
 	
+	public static void welcome() {
+		System.out.println();
+		System.out.println(" _______  __   __  ______   _______  ___   _  __   __ ");
+		System.out.println("|       ||  | |  ||      | |       ||   | | ||  | |  |");
+		System.out.println("|  _____||  | |  ||  _    ||   _   ||   |_| ||  | |  |");
+		System.out.println("| |_____ |  |_|  || | |   ||  | |  ||      _||  |_|  |");
+		System.out.println("|_____  ||       || |_|   ||  |_|  ||     |_ |       |");
+		System.out.println(" _____| ||       ||       ||       ||    _  ||       |");
+		System.out.println("|_______||_______||______| |_______||___| |_||_______|");
+		System.out.println();
+ 		System.out.println("       _   __            _             ___   ___   ___");
+ 		System.out.println("      | | / /__ _______ (_)__  ___    / _ \\ / _ \\ <  /");
+ 		System.out.println("      | |/ / -_) __(_-</ / _ \\/ _ \\  / // // // / / / ");
+ 		System.out.println("      |___/\\__/_/ /___/_/\\___/_//_/  \\___(_)___(_)_/  ");
+ 		System.out.println();
+ 		System.out.println("      _              _         _     ___     ___       ");
+ 		System.out.println("     | |__ _  _   _ | |__ _ __| |__ | _ )   |   \\ _  _ ");
+ 		System.out.println("     | '_ \\ || | | || / _` / _| / / | _ \\_  | |) | || |");
+ 		System.out.println("     |_.__/\\_, |  \\__/\\__,_\\__|_\\_\\ |___(_) |___/ \\_,_|");
+ 		System.out.println("           |__/                                        ");
+ 		System.out.println("");
+	}
+
 	// repace values at speficified row and column
 	private static void replacer(int[][] matrix) {
 		Scanner sc = new Scanner(System.in);
@@ -60,6 +88,7 @@ public class Sudoku {
 		}
 	}
 
+	// read from file and return the matrix
 	public static int[][] reader() throws Exception {
 		FileReader fr = new FileReader("sudoku001.txt");
 		BufferedReader br = new BufferedReader(fr);
@@ -73,7 +102,7 @@ public class Sudoku {
 		}
 		return matrix;
 	}
-	// read and return the matrix
+	// read from system input and return the matrix
 	// private static int[][] reader() {
 	// 	int[][] matrix = new int[9][9];
 	// 	Scanner sc = new Scanner(System.in); 
@@ -88,10 +117,10 @@ public class Sudoku {
 
 	// print the current matrix status
 	private static void printer(String[][] matrixToPrint) {
-		System.out.println(ANSI_BLUE+"   A B C  D E F  G H I"+ANSI_RESET);
-		System.out.println();
+		System.out.println("                   "+"  "+ANSI_BOLD+ANSI_BLUE+"A B C  D E F  G H I"+ANSI_RESET+ANSI_NORMAL);
+		// System.out.println();
 		for (int r=0; r<matrixToPrint.length; r++) {
-			System.out.print(ANSI_BLUE+(r+1)+"  "+ANSI_RESET);
+			System.out.print("                   "+ANSI_BLUE+ANSI_BOLD+(r+1)+" "+ANSI_RESET);
 			for (int c=0; c<matrixToPrint[r].length; c++) {
 				String decoration = "";
 				if (c%3==2 && c!=8) {
@@ -112,26 +141,26 @@ public class Sudoku {
 			}
 		}
 		System.out.println();
-		for (int r=0; r<matrixToPrint.length; r++) {
-			for (int c=0; c<matrixToPrint[r].length; c++) {
-				int row = r + 1;
-				int column = c + 1;
-				if (matrixToPrint[r][c].charAt(0)=='0') {
-					System.out.println("The value at row "+row+" column "+column+" is missing.");
-				} else {
-					if (matrixToPrint[r][c].charAt(1)=='X') {
-						System.out.println("The value at row "+row+" column "+column+" is duplicated in the row.");
-					}		
-					if (matrixToPrint[r][c].charAt(2)=='X') {
-						System.out.println("The value at row "+row+" column "+column+" is \nduplicated in the column.");
-					}
-					if (matrixToPrint[r][c].charAt(3)=='X') {
-						System.out.println("The value at row "+row+" column "+column+" is \nduplicated in the block.");
-					}
-				}
-			}
+		// for (int r=0; r<matrixToPrint.length; r++) {
+		// 	for (int c=0; c<matrixToPrint[r].length; c++) {
+		// 		int row = r + 1;
+		// 		int column = c + 1;
+		// 		if (matrixToPrint[r][c].charAt(0)=='0') {
+		// 			System.out.println("The value at row "+row+" column "+column+" is missing.");
+		// 		} else {
+		// 			if (matrixToPrint[r][c].charAt(1)=='X') {
+		// 				System.out.println("The value at row "+row+" column "+column+" is duplicated in the row.");
+		// 			}		
+		// 			if (matrixToPrint[r][c].charAt(2)=='X') {
+		// 				System.out.println("The value at row "+row+" column "+column+" is \nduplicated in the column.");
+		// 			}
+		// 			if (matrixToPrint[r][c].charAt(3)=='X') {
+		// 				System.out.println("The value at row "+row+" column "+column+" is \nduplicated in the block.");
+		// 			}
+		// 		}
+		// 	}
 
-		}
+		// }
 	}
 
 	// verify if it is solved
