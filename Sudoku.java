@@ -59,18 +59,9 @@ public class Sudoku {
 		boolean solved = false; // the variable that stores whether the current sudoku is solved or not
 		String[][] matrixToPrint = new String[9][9];
 		int[] currentPos = {0, 0};
-		solved = verifier(matrix, matrixToPrint); // verify whether the sudoku is solved or not
+		verifier(matrix, matrixToPrint); // verify whether the sudoku is solved or not
 		printer(matrixToPrint, initMatrix, currentPos); // print the current sudoku
-		while (!solved) {
-			handler(matrix, initMatrix, matrixToPrint, currentPos);
-			solved = verifier(matrix, matrixToPrint);
-		}
-		System.out.println();
-		System.out.println();
-		// while (!solved) {
-		// 	replacer(matrix, initMatrix, matrixToPrint);
-		// 	solved = verifier(matrix, matrixToPrint);
-		// }
+		handler(matrix, initMatrix, ansMatrix, matrixToPrint, currentPos);
 		clearScreen();
 		printer(matrixToPrint, initMatrix, currentPos);
 		System.out.println();
@@ -157,144 +148,88 @@ public class Sudoku {
 		}
 	}
 
-	// // repace values at speficified row and column
-	// private static void replacer(int[][] matrix, int[][] initMatrix, String[][] matrixToPrint) {
-	// 	Scanner sc = new Scanner(System.in);
-	// 	// get the number of values the user wants to change
-	// 	System.out.println("Enter the number of values you want to change");
-	// 	System.out.print(":");
-	// 	int n = sc.nextInt();
-	// 	clearScreen();
-	// 	printer(matrixToPrint, initMatrix);
-	// 	System.out.println();
-	// 	System.out.println();
-	// 	for (int i=0; i<n; i++) {
-	// 		// get the row number of value the user wants to change
-	// 		System.out.println("Enter the row number of the value you want to replace");
-	// 		System.out.print(":");
-	// 		int r = sc.nextInt() - 1;
-	// 		clearScreen();
-	// 		printer(matrixToPrint, initMatrix);
-	// 		// get the column number of value the user wants to change
-	// 		System.out.println("\n\nEnter the column number of the value you want to replace");
-	// 		System.out.print(":");
-	// 		int c = sc.nextInt() - 1;
-	// 		clearScreen();
-	// 		printer(matrixToPrint, initMatrix);
-	// 		// get the new value
-	// 		System.out.println("\n\nEnter the value you want to replace \"" + matrix[r][c] + "\" with");
-	// 		System.out.print(":");
-	// 		int value = sc.nextInt();
-	// 		clearScreen();
-	// 		printer(matrixToPrint, initMatrix);
-	// 		clearScreen();
-	// 		if (initMatrix[r][c] == 0){ // if the initial value is 0, this value CAN be changed
-	// 			matrix[r][c] = value; // replace the old value with new value
-	// 			verifier(matrix, matrixToPrint);
-	// 			printer(matrixToPrint, initMatrix);
-	// 			// print the whether the change is successful
-	// 			System.out.println(ANSI_GREEN + "Success! You have changed the value." + ANSI_RESET);
-	// 		} else { // if the initial value isn't 0, this value CANNOT be changed
-	// 			verifier(matrix, matrixToPrint);
-	// 			printer(matrixToPrint, initMatrix);
-	// 			// print the whether the change is successful
-	// 			System.out.println(ANSI_BOLD+ANSI_RED + "Error! You cannot change this value." + ANSI_RESET);
-	// 		}
-	// 		System.out.println();
-	// 	}
-	// }
-
-	// repace values at speficified row and column
-	private static void handler(int[][] matrix, int[][] initMatrix, String[][] matrixToPrint, int[] currentPos) {
+	// handle navigation and replacement
+	private static void handler(int[][] matrix, int[][] initMatrix, int[][] ansMatrix, String[][] matrixToPrint, int[] currentPos) {
 		Scanner sc = new Scanner(System.in);
-		boolean valueChanged = false;
-		int row = currentPos[0];
-		int column = currentPos[1];
-		while (!valueChanged) {
-			System.out.println("\n\nEnter (L)eft, (R)ight, (U)p, (D)own, or a Value");
+		int row;
+		int column;
+		boolean solved = false;
+		String statusBar = "New game loaded";
+		while (!solved) {
+			row = currentPos[0];
+			column = currentPos[1];
+			System.out.println(statusBar);
+			System.out.println("(L)eft (R)ight (U)p (D)own (A)nswer (Q)uit");
+			System.out.println("Enter a value to replace");
 			System.out.print(":");
 			String input = sc.next();
+			// moving heighting according to input
 			if (input.toLowerCase().charAt(0) == 'l') {
 				column--;
-				// positionVerifier();
-				currentPos[0] = row;
-				currentPos[1] = column;
-				clearScreen();
-				printer(matrixToPrint, initMatrix, currentPos);
+				statusBar = "Moved left";
 			} else if (input.toLowerCase().charAt(0) == 'r') {
 				column++;
-				currentPos[0] = row;
-				currentPos[1] = column;
-				clearScreen();
-				printer(matrixToPrint, initMatrix, currentPos);
+				statusBar = "Moved right";
 			} else if (input.toLowerCase().charAt(0) == 'u') {
 				row--;
-				currentPos[0] = row;
-				currentPos[1] = column;
-				clearScreen();
-				printer(matrixToPrint, initMatrix, currentPos);
+				statusBar = "Moved down";
 			} else if (input.toLowerCase().charAt(0) == 'd') {
 				row++;
-				currentPos[0] = row;
-				currentPos[1] = column;
-				clearScreen();
-				printer(matrixToPrint, initMatrix, currentPos);
-			} else {
+				statusBar = "Moved left";
+			} else if (input.toLowerCase().charAt(0) == 'a') {
+				int value = ansMatrix[row][column];
+				if (initMatrix[row][column] == 0){ // if the initial value is 0, this value CAN be changed
+					matrix[row][column] = value; // replace the old value with new value
+					solved = verifier(matrix, matrixToPrint);
+					if (solved) { // return if it's solved
+						currentPos[0] = 9;
+						return;
+					}
+				}
+				column++;
+				statusBar = ANSI_GREEN+"Answer displayed"+ANSI_RESET;
+			} else if (input.toLowerCase().charAt(0) == 'q') {
+				statusBar = ANSI_RED+"Game quit"+ANSI_RESET;
+				System.exit(0);
+			} else { // changing a value
 				int value = Integer.parseInt(input);
 				if (initMatrix[row][column] == 0){ // if the initial value is 0, this value CAN be changed
 					matrix[row][column] = value; // replace the old value with new value
-					verifier(matrix, matrixToPrint);
-					column++;
-					currentPos[0] = row;
-					currentPos[1] = column;
-					printer(matrixToPrint, initMatrix, currentPos);
-					// print the whether the change is successful
-					System.out.println(ANSI_GREEN + "Success! You have changed the value." + ANSI_RESET);
-				} else { // if the initial value isn't 0, this value CANNOT be changed
-					verifier(matrix, matrixToPrint);
-					column++;
-					currentPos[0] = row;
-					currentPos[1] = column;
-					printer(matrixToPrint, initMatrix, currentPos);
-					// print the whether the change is successful
-					System.out.println(ANSI_BOLD+ANSI_RED + "Error! You cannot change this value." + ANSI_RESET);
+					solved = verifier(matrix, matrixToPrint);
+					if (solved) { // return if it's solved
+						currentPos[0] = 9;
+						return;
+					}
+					statusBar = ANSI_GREEN+"Value changed"+ANSI_RESET;
+				} else {
+					statusBar = ANSI_BOLD+ANSI_RED+"Intial value cannot be changed!"+ANSI_RESET;
 				}
+				column++;
 			}
+			positionVerifier(row, column, currentPos); // avoid currentPos going out of boundary
+			clearScreen();
+			printer(matrixToPrint, initMatrix, currentPos);
 		}
-		// for (int i=0; i<n; i++) {
-		// 	// get the row number of value the user wants to change
-		// 	System.out.println("Enter the row number of the value you want to replace");
-		// 	System.out.print(":");
-		// 	int r = sc.nextInt() - 1;
-		// 	clearScreen();
-		// 	printer(matrixToPrint, initMatrix);
-		// 	// get the column number of value the user wants to change
-		// 	System.out.println("\n\nEnter the column number of the value you want to replace");
-		// 	System.out.print(":");
-		// 	int c = sc.nextInt() - 1;
-		// 	clearScreen();
-		// 	printer(matrixToPrint, initMatrix);
-		// 	// get the new value
-		// 	System.out.println("\n\nEnter the value you want to replace \"" + matrix[r][c] + "\" with");
-		// 	System.out.print(":");
-		// 	int value = sc.nextInt();
-		// 	clearScreen();
-		// 	printer(matrixToPrint, initMatrix);
-		// 	clearScreen();
-		// 	if (initMatrix[r][c] == 0){ // if the initial value is 0, this value CAN be changed
-		// 		matrix[r][c] = value; // replace the old value with new value
-		// 		verifier(matrix, matrixToPrint);
-		// 		printer(matrixToPrint, initMatrix);
-		// 		// print the whether the change is successful
-		// 		System.out.println(ANSI_GREEN + "Success! You have changed the value." + ANSI_RESET);
-		// 	} else { // if the initial value isn't 0, this value CANNOT be changed
-		// 		verifier(matrix, matrixToPrint);
-		// 		printer(matrixToPrint, initMatrix);
-		// 		// print the whether the change is successful
-		// 		System.out.println(ANSI_BOLD+ANSI_RED + "Error! You cannot change this value." + ANSI_RESET);
-		// 	}
-		// 	System.out.println();
-		// }
+	}
+
+	public static void positionVerifier(int r, int c,int[] currentPos) {
+		if (c >= 9 && r<8) { // if column number out of right boundary, move to next row
+			c = 0;
+			r++;
+		} else if (c >=9 && r>=9) { // if it's at the bottom right corner, it stays there
+			c = 8;
+		} else if (c < 0 && r>0) { // if column number out of left boundary, move to previous row
+			c = 8;
+			r--;
+		} else if (c < 0 && r<=0) { // if it's at the top left corner, it stays there
+			c = 0;
+		} else if (r >= 9) { // limit row number in boundary at bottom
+			r = 8;
+		} else if (r < 0) { // limit row number in boundary at top
+			r = 0;
+		}
+		currentPos[0] = r;
+		currentPos[1] = c;
 	}
 
 	// read from file begin with n-th line and return the matrix
@@ -357,9 +292,9 @@ public class Sudoku {
 				if (currentPos[0] == r && currentPos[1] == c) {
 					System.out.print(ANSI_HIGHLIGHT);
 				}
-				if (matrixToPrint[r][c].contains("X")) { // print value in red if it's wrong
+				if (matrixToPrint[r][c].contains("X") && initMatrix[r][c]==0) { // print value in red if it's duplicated and not initial
 					System.out.print(ANSI_RED + matrixToPrint[r][c].charAt(0) + ANSI_RESET);
-				} else if (initMatrix[r][c]==0) { // print value in green if it's right
+				} else if (initMatrix[r][c]==0) { // print value in green if it's not duplicated
 					System.out.print(ANSI_GREEN + matrixToPrint[r][c].charAt(0) + ANSI_RESET);
 				} else { // print color in default color if it's an initial value
 					System.out.print(matrixToPrint[r][c].charAt(0) + ANSI_RESET);
@@ -374,27 +309,6 @@ public class Sudoku {
 		}
 		System.out.println("               "+"#########################");
 		System.out.println();
-		// waste test code for printing out each check: row, column and block
-		// for (int r=0; r<9; r++) {
-		// 	for (int c=0; c<9; c++) {
-		// 		int row = r + 1;
-		// 		int column = c + 1;
-		// 		if (matrixToPrint[r][c].charAt(0)=='0') {
-		// 			System.out.println("The value at row "+row+" column "+column+" is missing.");
-		// 		} else {
-		// 			if (matrixToPrint[r][c].charAt(1)=='X') {
-		// 				System.out.println("The value at row "+row+" column "+column+" is duplicated in the row.");
-		// 			}		
-		// 			if (matrixToPrint[r][c].charAt(2)=='X') {
-		// 				System.out.println("The value at row "+row+" column "+column+" is \nduplicated in the column.");
-		// 			}
-		// 			if (matrixToPrint[r][c].charAt(3)=='X') {
-		// 				System.out.println("The value at row "+row+" column "+column+" is \nduplicated in the block.");
-		// 			}
-		// 		}
-		// 	}
-
-		// }
 	}
 
 	// verify if it is solved
@@ -405,25 +319,23 @@ public class Sudoku {
 
 		// check the matrix (each row)
 		for (int r=0; r<9; r++) {
-			int[] row = new int[9];
 			// check value at each column in the row
 			for (int c=0; c<9; c++) {
-				boolean check = false;
+				boolean duplicated = false;
 				for (int i=0; i<9; i++) {
-					if (row[i]==matrix[r][c]){
-						check = true;
+					if (matrix[r][i]==matrix[r][c] && i!=c){
+						duplicated = true;
 					}
 				}
 				String info;
 
-				// whenever one value is found to be duplicated (check), set info to "X" and the game is not solved
-				if (check) {
+				// whenever one value is found to be duplicated, set info to "X" and the game is not solved
+				if (duplicated) {
 					info = "X";
 					solved = false;
 				} else { // set info to . if it is not duplicated
 					info = ".";
 				}
-				row[c] = matrix[r][c];
 				matrixToPrint[r][c] = Integer.toString(matrix[r][c]) + info; // update info to matrixToPrint
 				rotatedMatrix[c][r] = matrix[r][c]; // update values in rotatedMatrix
 				int cn = r/3;
@@ -438,46 +350,42 @@ public class Sudoku {
 
 		// check rotated matrix (each column)
 		for (int c=0; c<9; c++) {
-			int[] column = new int[9];
 			// check value at each row in the column
 			for (int r=0; r<9; r++) {
-				boolean check = false;
+				boolean duplicated = false;
 				for (int i=0; i<9; i++) {
-					if (column[i]==rotatedMatrix[c][r]){
-						check = true;
+					if (rotatedMatrix[c][i]==rotatedMatrix[c][r] && i!=r){
+						duplicated = true;
 					}
 				}
 				String info;
-				if (check) {
+				if (duplicated) {
 					info = "X";
 					solved = false;
 				} else {
 					info = "."; // set info to . if it is not duplicated
 				}
-				column[r] = rotatedMatrix[c][r];
 				matrixToPrint[r][c] = matrixToPrint[r][c] + info; // update info to matrixToPrint
 			}
 		}		
 
 		//check extracted matrix (each sub-grid)
 		for (int i=0; i<9; i++) {
-			int[] block = new int[9];
 			// check value at each sub-grid
 			for (int j=0; j<9; j++) {
-				boolean check = false;
+				boolean duplicated = false;
 				for (int k=0; k<9; k++) {
-					if (block[k]==extractedMatrix[i][j]){
-						check = true;
+					if (extractedMatrix[i][k]==extractedMatrix[i][j] && k!=j){
+						duplicated = true;
 					}
 				}
 				String info;
-				if (check) {
+				if (duplicated) {
 					info = "X ";
 					solved = false;
 				} else {
 					info = ". "; // set info to . if it is not duplicated
 				}
-				block[j] = extractedMatrix[i][j];
 				int r = i%3 * 3 + j%3;
 				int c = i/3 * 3 + j/3;
 				matrixToPrint[r][c] = matrixToPrint[r][c] + info; // update info to matrixToPrint
