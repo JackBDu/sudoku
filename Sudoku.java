@@ -36,19 +36,34 @@ public class Sudoku {
 	public static void main(String[] args) throws Exception {
 		welcome();
 		String playerName = getPlayerName();
-		introduceGame(playerName);
-		int[][] initMatrix = reader(1); // read initial matrix
-		int[][] matrix = reader(11); // read current status
-		int[][] ansMatrix = reader(21); // read the answer matrix
+		char newGameType = introduceGame(playerName);
+		int[][] initMatrix = null;
+		int[][] matrix = null;
+		int[][] ansMatrix = null;
+
+		if (newGameType == 'o') {
+			initMatrix = reader(1); // read initial matrix
+			matrix = reader(11); // read current status
+			ansMatrix = reader(21); // read the answer matrix
+		} else {
+			initMatrix = readInConsole();
+			matrix = new int[9][9];
+			for (int i = 0; i < 9; i++) {
+			  matrix[i] = Arrays.copyOf(initMatrix[i], 9);
+			}
+		}
 		boolean solved = false;
 		String[][] matrixToPrint = new String[9][9];
 		solved = verifier(matrix, matrixToPrint);
 		printer(matrixToPrint, initMatrix);
 		while (!solved) {
-			replacer(matrix, initMatrix);
+			replacer(matrix, initMatrix, matrixToPrint);
 			solved = verifier(matrix, matrixToPrint);
-			printer(matrixToPrint, initMatrix);
 		}
+		clearScreen();
+		printer(matrixToPrint, initMatrix);
+		System.out.println();
+		System.out.println();
 		System.out.println("Congratulations, you solved it!");
 	}
 
@@ -97,7 +112,7 @@ public class Sudoku {
 		return playerName;
 	}
 
-	public static void introduceGame(String playerName) {
+	public static char introduceGame(String playerName) {
 		Scanner sc = new Scanner(System.in);
 		clearScreen();
 		System.out.println("Hello, "+playerName+"!");
@@ -115,29 +130,54 @@ public class Sudoku {
 		System.out.println("   \\###############################################/");
 		System.out.println("");
 		System.out.println("");
+		System.out.println("Do you want to enter a new sudoku (Enter \"n(ew)\")");
+		System.out.println("or open an exisiting one? (Enter \"o(pen)\")");
 		System.out.println("");
 		System.out.println("");
-		System.out.println("");
-		System.out.println("");
-		sc.next();
+		System.out.print(":");
+		String newGameType = sc.next();
+		if (newGameType.toLowerCase().charAt(0)=='n') {
+			return 'n';
+		} else {
+			return 'o';
+		}
 	}
 
 	// repace values at speficified row and column
-	private static void replacer(int[][] matrix, int[][] initMatrix) {
+	private static void replacer(int[][] matrix, int[][] initMatrix, String[][] matrixToPrint) {
 		Scanner sc = new Scanner(System.in);
-		System.out.print("\nEnter the number of values you want to change: ");
+		System.out.println("\n\nEnter the number of values you want to change");
+		System.out.print(":");
 		int n = sc.nextInt();
+		clearScreen();
+		printer(matrixToPrint, initMatrix);
+		System.out.println();
+		System.out.println();
 		for (int i=0; i<n; i++) {
-			System.out.print("Enter the row number of the value you want to replace: ");
+			System.out.println("Enter the row number of the value you want to replace");
+			System.out.print(":");
 			int r = sc.nextInt() - 1;
-			System.out.print("Enter the column number of the value you want to replace: ");
+			clearScreen();
+			printer(matrixToPrint, initMatrix);
+			System.out.println("\n\nEnter the column number of the value you want to replace");
+			System.out.print(":");
 			int c = sc.nextInt() - 1;
-			System.out.print("Enter the value you want to replace \"" + matrix[r][c] + "\" with: ");
+			clearScreen();
+			printer(matrixToPrint, initMatrix);
+			System.out.println("\n\nEnter the value you want to replace \"" + matrix[r][c] + "\" with");
+			System.out.print(":");
 			int value = sc.nextInt();
+			clearScreen();
+			printer(matrixToPrint, initMatrix);
+			clearScreen();
 			if (initMatrix[r][c] == 0){ // if the initial value is 0, this value CAN be changed
 				matrix[r][c] = value;
+				verifier(matrix, matrixToPrint);
+				printer(matrixToPrint, initMatrix);
 				System.out.println(ANSI_GREEN + "Success! You have changed the value." + ANSI_RESET);
 			} else { // if the initial value isn't 0, this value CANNOT be changed
+				verifier(matrix, matrixToPrint);
+				printer(matrixToPrint, initMatrix);
 				System.out.println(ANSI_BOLD+ANSI_RED + "Error! You cannot change this value." + ANSI_RESET);
 			}
 			System.out.println();
@@ -169,29 +209,31 @@ public class Sudoku {
 		return matrix;
 	}
 
-	// read from system input and return the matrix
-	// private static int[][] reader() {
-	// 	int[][] matrix = new int[9][9];
-	// 	Scanner sc = new Scanner(System.in); 
-	// 	System.out.println("Enter the values row by row, seperate values with a space and enter 0 for missing values.");
-	// 	for (int r=0; r<9; r++) {
-	// 		for (int c=0; c<9; c++) {
-	// 			matrix[r][c] = sc.nextInt();
-	// 		}
-	// 	}
-	// 	return matrix;
-	// }
+	// read in from user input and return the matrix
+	public static int[][] readInConsole() {
+		int[][] matrix = new int[9][9];
+		Scanner sc = new Scanner(System.in); 
+		for (int r=0; r<9; r++) {
+			clearScreen();
+			System.out.println("Enter row "+(r+1)+" of the sudoku (seperate values with a space and enter 0 for missing values)");
+			System.out.print(":");
+			for (int c=0; c<9; c++) {
+				matrix[r][c] = sc.nextInt();
+			}
+		}
+		return matrix;
+	}
 
 	// print the current matrix status
-	private static void printer(String[][] matrixToPrint, int[][] initMatrix) {
-		System.out.println("                  "+"  "+ANSI_BOLD+ANSI_BLUE+"1 2 3  4 5 6  7 8 9"+ANSI_RESET+ANSI_NORMAL);
-		// System.out.println();
+	public static void printer(String[][] matrixToPrint, int[][] initMatrix) {
+		clearScreen();
+		System.out.println("               "+"#########################");
+		System.out.println("               # "+"  "+ANSI_BOLD+ANSI_BLUE+"1 2 3  4 5 6  7 8 9"+ANSI_RESET+ANSI_NORMAL+" #");
 		for (int r=0; r<9; r++) {
-			System.out.print("                  "+ANSI_BLUE+ANSI_BOLD+(r+1)+" "+ANSI_RESET);
+			System.out.print("               # "+ANSI_BLUE+ANSI_BOLD+(r+1)+" "+ANSI_RESET);
 			for (int c=0; c<9; c++) {
 				String decoration = "";
 				if (c%3==2 && c!=8) {
-					// decoration = "| ";
 					decoration = " ";
 				}
 				if (matrixToPrint[r][c].contains("X")) {
@@ -203,12 +245,12 @@ public class Sudoku {
 				}
 				System.out.print(" "+decoration);
 			}
-			System.out.println();
+			System.out.println("#");
 			if (r%3==2 && r!=8) {
-				// System.out.println("––––––+–––––––+––––––"); 
-				System.out.println();
+				System.out.println("               #                       #");
 			}
 		}
+		System.out.println("               "+"#########################");
 		System.out.println();
 		// for (int r=0; r<9; r++) {
 		// 	for (int c=0; c<9; c++) {
