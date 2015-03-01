@@ -247,9 +247,9 @@ public class Sudoku {
 		int[][] matrix = new int[9][9];
 		try {
 			FileReader fr = null;
-			try {
+			try { // open previously played game
 				fr = new FileReader("data/"+playerName+"/file.dat");
-			} catch (Exception e) {
+			} catch (Exception e) { // open default game when no player game
 				fr = new FileReader("sudoku001.dat");
 			}
 			BufferedReader br = new BufferedReader(fr);
@@ -415,11 +415,12 @@ public class Sudoku {
 		System.out.flush();
 	}
 
-	// write out a .dat file
+	// write out a .dat file for different player
 	public static void writeOut (int[][] initMatrix, int[][] matrix, int[][] ansMatrix, String playerName) throws Exception{
 		PrintWriter pw = new PrintWriter(
 			new OutputStreamWriter(
-       			new FileOutputStream("data/"+playerName+"/file.dat"), "UTF-8"));
+       			new FileOutputStream("data/"+playerName+"/file.dat"), "UTF-8")); // saving game data in player folder
+		// write initMatrix for ten lines
 		for (int r=0; r<9; r++) {
 			String line = "";
 			for (int c=0; c<9; c++) {
@@ -428,6 +429,7 @@ public class Sudoku {
 			pw.println(line);
 		}
 		pw.println();
+		// write matrix for ten lines
 		for (int r=0; r<9; r++) {
 			String line = "";
 			for (int c=0; c<9; c++) {
@@ -436,6 +438,7 @@ public class Sudoku {
 			pw.println(line);
 		}
 		pw.println();
+		// write ansMatrix for ten lines if any
 		if (ansMatrix!=null) {
 			for (int r=0; r<9; r++) {
 				String line = "";
