@@ -57,7 +57,7 @@ public class Sudoku {
 			initMatrix = readInConsole(); // read from user input
 			matrix = new int[9][9];
 			for (int i = 0; i < 9; i++) {
-			  matrix[i] = Arrays.copyOf(initMatrix[i], 9);
+				 matrix[i] = Arrays.copyOf(initMatrix[i], 9);
 			}
 		}
 		boolean solved = false; // the variable that stores whether the current sudoku is solved or not
@@ -200,7 +200,7 @@ public class Sudoku {
 			} else if (input.toLowerCase().charAt(0) == 'q') {
 				statusBar = ANSI_RED+"Game quit"+ANSI_RESET;
 				System.exit(0);
-			} else { // changing a value
+			} else if (input == "[1-9]") { // changing a value
 				int value = Integer.parseInt(input);
 				if (initMatrix[row][column] == 0){ // if the initial value is 0, this value CAN be changed
 					matrix[row][column] = value; // replace the old value with new value
@@ -214,7 +214,7 @@ public class Sudoku {
 					statusBar = ANSI_BOLD+ANSI_RED+"Intial value cannot be changed!"+ANSI_RESET;
 				}
 				column++;
-			}
+			}	
 			positionVerifier(row, column, currentPos); // avoid currentPos going out of boundary
 			clearScreen();
 			printer(matrixToPrint, initMatrix, currentPos);
