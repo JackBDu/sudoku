@@ -15,6 +15,9 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.File;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
 
 /*
  * @ version 0.0.1
@@ -22,7 +25,7 @@ import java.io.File;
  */
 
 
-public class Sudoku {
+public class SudokuGui extends JFrame{
 	// initializing some ANSI values for text formating
 	public static final String ANSI_RESET = "\u001B[0m";
 	public static final String ANSI_BLACK = "\u001B[30m";
@@ -40,8 +43,24 @@ public class Sudoku {
 	public static final String ANSI_NORMAL = "\033[0m";
 	public static final String ANSI_HIGHLIGHT = "\033[43m";
 
+	public JTextField[][] grids = new JTextField[9][9];
+
 	// the main method
 	public static void main(String[] args) throws Exception {
+		new SudokuGui().createGui();
+	}
+	
+	/*
+	 * gui for sudoku
+	 *
+	 */
+	void createGui() throws Exception{
+		setLayout(new GridLayout(9,9));
+		setTitle("Sudoku GUI");
+		setSize(200, 200);
+		setLocationRelativeTo(null);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setResizable(true);
 		welcome(); // print welcome screen
 		String playerName = getPlayerName(); // get the player's name
 		char newGameType = introduceGame(playerName); // get the type: either open file or entering
@@ -64,6 +83,13 @@ public class Sudoku {
 		String[][] matrixToPrint = new String[9][9];
 		int[] currentPos = {0, 0};
 		verifier(matrix, matrixToPrint); // verify whether the sudoku is solved or not
+		for (int r = 0; r < 9; r++) {
+			for (int c = 0; c < 9; c++) {
+				grids[r][c] = new JTextField(matrixToPrint[r][c].charAt(0));
+				add(grids[r][c]);
+			}
+		}
+		setVisible(true);
 		printer(matrixToPrint, initMatrix, currentPos); // print the current sudoku
 		handler(matrix, initMatrix, ansMatrix, matrixToPrint, currentPos, playerName);
 		clearScreen();
@@ -81,7 +107,7 @@ public class Sudoku {
 	 * http://www.network-science.de/ascii/
 	 */
 	
-	public static void welcome() {
+	public void welcome() {
 		for (int i = 0; i<100; i++) {
 			System.out.println();
 		}
@@ -111,7 +137,7 @@ public class Sudoku {
 	}
 
 	// get player name and return it
-	public static String getPlayerName() {
+	public String getPlayerName() {
 		Scanner sc = new Scanner(System.in);
 		System.out.print("Enter your name: ");
 		String playerName = sc.next();
@@ -119,7 +145,7 @@ public class Sudoku {
 	}
 
 	// print the introduction of the game and return the type of new game the user chooses
-	public static char introduceGame(String playerName) {
+	public char introduceGame(String playerName) {
 		(new File("data/"+playerName.toLowerCase())).mkdirs();
 		Scanner sc = new Scanner(System.in);
 		clearScreen();
@@ -154,7 +180,7 @@ public class Sudoku {
 	}
 
 	// handle navigation and replacement
-	private static void handler(int[][] matrix, int[][] initMatrix, int[][] ansMatrix, String[][] matrixToPrint, int[] currentPos, String playerName) throws Exception {
+	private void handler(int[][] matrix, int[][] initMatrix, int[][] ansMatrix, String[][] matrixToPrint, int[] currentPos, String playerName) throws Exception {
 		Scanner sc = new Scanner(System.in);
 		int row;
 		int column;
@@ -222,7 +248,7 @@ public class Sudoku {
 		}
 	}
 
-	public static void positionVerifier(int r, int c,int[] currentPos) {
+	public void positionVerifier(int r, int c,int[] currentPos) {
 		if (c >= 9 && r<8) { // if column number out of right boundary, move to next row
 			c = 0;
 			r++;
@@ -243,7 +269,7 @@ public class Sudoku {
 	}
 
 	// read from file begin with n-th line and return the matrix
-	public static int[][] reader(int n, String playerName) throws Exception {
+	public int[][] reader(int n, String playerName) throws Exception {
 		int[][] matrix = new int[9][9];
 		try {
 			FileReader fr = null;
@@ -273,7 +299,7 @@ public class Sudoku {
 	}
 
 	// read in from user input and return the matrix
-	public static int[][] readInConsole() {
+	public int[][] readInConsole() {
 		int[][] matrix = new int[9][9];
 		Scanner sc = new Scanner(System.in);
 		// get the sudoku line by line
@@ -291,7 +317,7 @@ public class Sudoku {
 	}
 
 	// print the current matrix status
-	public static void printer(String[][] matrixToPrint, int[][] initMatrix, int[] currentPos) {
+	public void printer(String[][] matrixToPrint, int[][] initMatrix, int[] currentPos) {
 		clearScreen();
 		System.out.println("               "+"#########################");
 		// print the column numbers in blue and bold
@@ -299,6 +325,7 @@ public class Sudoku {
 		for (int r=0; r<9; r++) {
 			System.out.print("               # "+ANSI_BLUE+ANSI_BOLD+(r+1)+" "+ANSI_RESET);
 			for (int c=0; c<9; c++) {
+				grids[r][c].setText(matrixToPrint[r][c].charAt(0)+"");
 				String decoration = "";
 				// adding an extra space for the sub-grid
 				if (c%3==2 && c!=8) {
@@ -327,7 +354,7 @@ public class Sudoku {
 	}
 
 	// verify if it is solved
-	public static boolean verifier(int[][] matrix, String[][] matrixToPrint) {
+	public boolean verifier(int[][] matrix, String[][] matrixToPrint) {
 		boolean solved = true; // initialize it to be true
 		int[][] rotatedMatrix = new int[9][9]; // matrix rotated by 90 degrees (in order to check column)
 		int[][] extractedMatrix = new int[9][9];  // sub-grids extracted to be seperate array
@@ -413,13 +440,13 @@ public class Sudoku {
 	}
 
 	// clear the screen
-	public static void clearScreen() {
+	public void clearScreen() {
 		System.out.print("\u001b[2J");
 		System.out.flush();
 	}
 
 	// write out a .dat file for different player
-	public static void writeOut (int[][] initMatrix, int[][] matrix, int[][] ansMatrix, String playerName) throws Exception{
+	public void writeOut (int[][] initMatrix, int[][] matrix, int[][] ansMatrix, String playerName) throws Exception{
 		PrintWriter pw = new PrintWriter(
 			new OutputStreamWriter(
        			new FileOutputStream("data/"+playerName+"/file.dat"), "UTF-8")); // saving game data in player folder
